@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{/layout.html}">
+<head></head>
+<body>
+<div layout:fragment="contents">
+    <section class="paymentrequests_received">
+        <h2>People that you owe</h2>
+        <p id="no_payment_requests_received" th:if="${#lists.isEmpty(paymentrequests_received)}">You don't owe anyone anything!</p>
+    </section>
+
+    <table th:if="${not #lists.isEmpty(paymentrequests_received)}">
+        <tr>
+            <th>Who</th>
+            <th>What</th>
+            <th>Due In(days)</th>
+            <th>How Much</th>
+        </tr>
+        <tr th:each="payment : ${paymentrequests_received}">
+            <td th:text="${payment.getPersonRequestingPayment.getName()}">Who</td>
+            <td th:text="${payment.expense.getDescription()}">Description</td>
+            <td th:text="${payment.daysLeftToPay()}">Due</td>
+            <td th:text="${payment.getAmountToPay()}">How Much</td>
+            <td>
+                <div th:unless="${payment.isPaid()}">
+                    <form method="post" action="/paymentrequests_received.form" enctype="application/x-www-form-urlencoded">
+                        <input type="hidden" name="paymentId" th:value="${payment.expense.getId()}">
+                        <input type="hidden" name="id" th:value="${payment.getId()}">
+                        <input type="hidden" name="description" th:value="${payment.expense.getDescription()}">
+                        <input type="hidden" name="date" th:value="${payment.expense.getDate()}">
+                        <input type="hidden" name="amount" th:value="${payment.getAmountToPay()}">
+                        <input id="submit" type="submit" value="Pay"/>
+                    </form>
+                </div>
+                <div id="paid_1" th:if="${payment.isPaid()}">
+                    <span>&#10003;</span> <!-- Unicode for tick symbol -->
+                </div>
+            </td>
+        </tr>
+        <tr style="border-top: 1px solid black;"></tr>
+        <tr>
+            <th>Total Unpaid</th>
+            <th></th>
+            <th></th>
+            <th id="grand_total" th:text="${total_paymentrequests_received}"></th>
+        </tr>
+    </table>
+</div>
+</body>
+
+</html>
